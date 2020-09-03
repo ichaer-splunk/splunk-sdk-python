@@ -428,11 +428,11 @@ class TestSearchCommand(TestCase):
             show_configuration=('true' if show_configuration is True else 'false'))
 
         execute_metadata = '{"action":"execute","finished":true}'
-        execute_body = 'test\r\ndata\r\n'
+        execute_body = u'test\r\ndata \U0001F600\r\n'
 
-        ifile = StringIO(
-            'chunked 1.0,{},0\n{}'.format(len(getinfo_metadata), getinfo_metadata) +
-            'chunked 1.0,{},{}\n{}{}'.format(len(execute_metadata), len(execute_body), execute_metadata, execute_body))
+        payload = 'chunked 1.0,{},0\n{}'.format(len(getinfo_metadata.encode('utf-8')), getinfo_metadata) + \
+            'chunked 1.0,{},{}\n{}{}'.format(len(execute_metadata.encode('utf-8')), len(execute_body.encode('utf-8')), execute_metadata, execute_body)
+        ifile = BytesIO(payload.encode('utf-8'))
 
         command = TestCommand()
         result = BytesIO()
@@ -458,9 +458,9 @@ class TestSearchCommand(TestCase):
         self.assertEqual(
             'chunked 1.0,68,0\n'
             '{"inspector":{"messages":[["INFO","test command configuration: "]]}}\n'
-            'chunked 1.0,17,23\n'
+            'chunked 1.0,17,28\n'
             '{"finished":true}test,__mv_test\r\n'
-            'data,\r\n',
+            u'data \U0001F600,\r\n',
             result.getvalue().decode('utf-8'))
 
         self.assertEqual(command.protocol_version, 2)
@@ -620,11 +620,11 @@ class TestSearchCommand(TestCase):
             show_configuration=show_configuration)
 
         execute_metadata = '{"action":"execute","finished":true}'
-        execute_body = 'test\r\ndata\r\n'
+        execute_body = u'test\r\ndata \U0001F600\r\n'
 
-        ifile = StringIO(
-            'chunked 1.0,{},0\n{}'.format(len(getinfo_metadata), getinfo_metadata) +
-            'chunked 1.0,{},{}\n{}{}'.format(len(execute_metadata), len(execute_body), execute_metadata, execute_body))
+        payload = 'chunked 1.0,{},0\n{}'.format(len(getinfo_metadata.encode('utf-8')), getinfo_metadata) + \
+            'chunked 1.0,{},{}\n{}{}'.format(len(execute_metadata.encode('utf-8')), len(execute_body.encode('utf-8')), execute_metadata, execute_body)
+        ifile = BytesIO(payload.encode('utf-8'))
 
         command = TestCommand()
         result = BytesIO()
@@ -664,11 +664,11 @@ class TestSearchCommand(TestCase):
             show_configuration=('true' if show_configuration is True else 'false'))
 
         execute_metadata = '{"action":"execute","finished":true}'
-        execute_body = 'action\r\nraise_exception\r\n'
+        execute_body = u'action\r\nraise_exception\r\n'
 
-        ifile = StringIO(
-            'chunked 1.0,{},0\n{}'.format(len(getinfo_metadata), getinfo_metadata) +
-            'chunked 1.0,{},{}\n{}{}'.format(len(execute_metadata), len(execute_body), execute_metadata, execute_body))
+        payload = 'chunked 1.0,{},0\n{}'.format(len(getinfo_metadata.encode('utf-8')), getinfo_metadata) + \
+            'chunked 1.0,{},{}\n{}{}'.format(len(execute_metadata.encode('utf-8')), len(execute_body.encode('utf-8')), execute_metadata, execute_body)
+        ifile = BytesIO(payload.encode('utf-8'))
 
         command = TestCommand()
         result = BytesIO()

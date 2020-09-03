@@ -859,6 +859,8 @@ class SearchCommand(object):
         # noinspection PyBroadException
         try:
             header = ifile.readline()
+            if not six.PY2:
+                header = header.decode('utf-8')
         except Exception as error:
             raise RuntimeError('Failed to read transport header: {}'.format(error))
 
@@ -876,6 +878,8 @@ class SearchCommand(object):
 
         try:
             metadata = ifile.read(metadata_length)
+            if not six.PY2:
+                metadata = metadata.decode('utf-8')
         except Exception as error:
             raise RuntimeError('Failed to read metadata of length {}: {}'.format(metadata_length, error))
 
@@ -893,6 +897,8 @@ class SearchCommand(object):
         try:
             if body_length > 0:
                 body = ifile.read(body_length)
+                if not six.PY2:
+                    body = body.decode('utf-8')
         except Exception as error:
             raise RuntimeError('Failed to read body of length {}: {}'.format(body_length, error))
 
@@ -1110,4 +1116,7 @@ def dispatch(command_class, argv=sys.argv, input_file=sys.stdin, output_file=sys
     assert issubclass(command_class, SearchCommand)
 
     if module_name is None or module_name == '__main__':
+        # work around the fact that sys.stdin decodes bytes and therefore requires character counts for sized read()s
+        if not six.PY2 and input_file == sys.stdin and hasattr(sys.stdin, 'buffer'):
+            input_file = sys.stdin.buffer
         command_class().process(argv, input_file, output_file)
