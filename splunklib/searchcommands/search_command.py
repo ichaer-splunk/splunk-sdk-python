@@ -649,6 +649,10 @@ class SearchCommand(object):
         debug = environment.splunklib_logger.debug
         class_name = self.__class__.__name__
 
+        # work around the fact that sys.stdin decodes bytes and therefore requires character counts for sized read()s
+        if not six.PY2 and ifile == sys.stdin and hasattr(sys.stdin, 'buffer'):
+            ifile = sys.stdin.buffer
+
         debug('%s.process started under protocol_version=2', class_name)
         self._protocol_version = 2
 
@@ -1116,7 +1120,4 @@ def dispatch(command_class, argv=sys.argv, input_file=sys.stdin, output_file=sys
     assert issubclass(command_class, SearchCommand)
 
     if module_name is None or module_name == '__main__':
-        # work around the fact that sys.stdin decodes bytes and therefore requires character counts for sized read()s
-        if not six.PY2 and input_file == sys.stdin and hasattr(sys.stdin, 'buffer'):
-            input_file = sys.stdin.buffer
         command_class().process(argv, input_file, output_file)
